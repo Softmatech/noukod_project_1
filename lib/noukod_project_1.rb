@@ -1,6 +1,3 @@
-require "noukod_project_1/version"
-
-module NoukodProject1
-  class Error < StandardError; end
-  # Your code goes here...
-end
+require_relative './noukod_project_1/version'
+require_relative './noukod_project_1/deal'
+require_relative './noukod_project_1/cli'
