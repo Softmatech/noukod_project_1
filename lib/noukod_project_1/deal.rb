@@ -5,45 +5,47 @@ class NoukodProject1::Deal
     attr_accessor :name, :price, :availability, :url
   
     def self.today
-    # puts <<-DOC.gsub /^\s*/, ''
-    # 1. PCH Digital Pulse Massager - $27 - Still available!
-    # 2. Lenovo ThinkPad 11E 11.6 - $199.99 - Still available!
-    # DOC
-
-    deal_1 = self.new
-    deal_1.name = "PCH Digital Pulse Massager"
-    deal_1.price = "$27"
-    deal_1.availability = true
-    deal_1.url = "https://meh.com/"
-
-    deal_2 = self.new
-    deal_2.name = "Lenovo ThinkPad 11E 11.6"
-    deal_2.price = "$199.99"
-    deal_2.availability = true
-    deal_2.url = "https://www.woot.com/offers/lenovo-thinkpad-11-6-quad-core"
-
-        [deal_1,deal_2]
-    #       self.scrape_deals
-#     end
+        # Scrape woot and meh and then return deals based on that data
+       self.scrape_deals
+    end
   
-#   def self.scrape_deals
+  def self.scrape_deals
   
-#     deals = []
+    deals = []
   
-#     deals << self.scrape_woot
-#     deals << self.scrape_meh
-#     #Go to woot, find the product
-#     # Extract the properties
-#     #instantiate a deal
+    deals << self.scrape_woot
+    deals << self.scrape_meh
+    #Go to woot, find the product
+    # Extract the properties
+    #instantiate a deal
   
-#     #Go to meh
-#     deals
+    #Go to meh
+    deals
   end
   
-#     def self.scrape_woot
-#       doc = Nokogiri::HTML(open("https://woot.com"))
-#       binding.pry
-#     end
+    def self.scrape_woot
+      doc = Nokogiri::HTML(open("https://woot.com"))
+      
+      deal = self.new
+      deal.name = doc.search("h2.main-title").text.strip
+      deal.price = doc.search("span.price").text.strip
+      deal.url = doc.search("a.wantone").first.attr("href")
+      deal.availability = true
+      deal
+
+    end
+
+    def self.scrape_meh
+      doc = Nokogiri::HTML(open("https://meh.com"))
+      
+      deal = self.new
+      deal.name = doc.search("section.features h2").text.strip
+      deal.price = doc.search("button.buy-button").text.gsub("Buy it","").strip
+      deal.url = "https://meh.com"
+      deal.availability = true
+      deal
+
+    end
   
   end
   
