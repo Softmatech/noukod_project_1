@@ -8,8 +8,9 @@ end
 
 def list_news
     @menu_array = []
-    
+    puts "\n"
     puts "Welcome to Haïti Scrapping news!"
+    puts "\n"
     @news_type = NoukodProject1::News.today_news   
     
     @news_type.each.with_index(1) do |_news, i|
@@ -23,39 +24,76 @@ def list_news
 end
 
 def second_menu(type)
-    @title_array_2 = []
-    @news_by_type_title = NoukodProject1::News.scrape_news_by_type(type)
-
+    @@title_array_2 = []
+    @news_by_type_title = NoukodProject1::News.scrape_news_by_type(type).title_article
+    @@title_array_url = NoukodProject1::News.scrape_news_by_type(type).url
     @title_array = @news_by_type_title.strip.split("\n")
-    # puts "#{@title_array}"
+    puts "------ #{@title_array_url}"
 
     @title_array.each.with_index(1) do |_title, i|
-        @title_array_2 << _title
+        @@title_array_2 << _title
     end
 
     # puts "#{@title_array_2.size}"
     
-    for j in 0..@title_array_2.size - 1
-        puts "#{j+1})#{@title_array_2[j].strip}"
+    for j in 0..@@title_array_2.size - 1
+        puts "#{j+1})#{@@title_array_2[j].strip}"
     end 
     puts "------------------------------------------------------------------------------------------------------------------"
+    third_menu
+end
+
+def third_menu
+    puts "Choose a article number to display "
+    puts "\n"
+    article_number = gets.strip
+    link = @@title_array_url[article_number.to_i - 1].strip
+    get_article_details(link)
+end
+
+def square_equal(text)
+    
+    for i in 0..text.length + 1
+        print "="
+    end
+    puts "\n"
+
+    print "|"
+    puts text + "|"
+    # print "|"
+    for i in 0..text.length + 1
+        print "="
+    end
+
+    puts "\n"
 end
 
 
+def get_article_details(link)
+    new_link = "https://metropolehaiti.com/"+link
+    # puts "New link - #{new_link}"
+    details = NoukodProject1::News.scrape_news_details(new_link)
+    square_equal(details.details_title)
+    # puts "==============================================================================================================================="
+    puts details.details_description
+end
+
 def main_menu
     input = nil
-    while input != "quit"
-    puts "Choose a news type/category to display or type quit to exit :"
+    puts "Choose a news type/category to display or type quit to exit : \n"
+    while input != "quit" 
     input = gets.strip.downcase
-    if input.to_i > 0
+    if input.to_i > 0 && input.to_i <= @menu_array.size
         news = @menu_array[input.to_i - 1]
         puts "#{news} : "
         puts "------------------------------------------------------------------------------------------------------------------"
         second_menu(news.strip)
-    elsif input == "list"
-        list_news
         else
-        puts "Error, Please choose a valid news type/category to display or type quit to exit :"
+            puts "\n"
+        puts "Error, Please choose a valid news type/category to display or type quit to exit : \n"
+        puts "\n"
+        list_news
+        main_menu
     end
 end   
 end
