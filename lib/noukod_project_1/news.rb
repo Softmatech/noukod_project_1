@@ -2,51 +2,63 @@
 # require_relative './noukod_project_1/cli'
 
 class NoukodProject1::News
-    attr_accessor :category, :title, :description
-  
-    def self.today_news
-        # Scrape woot and meh and then return deals based on that data
-       self.scrape_news
-    end
-  
-  def self.scrape_news
-  
-    news = []
-  
-    news << self.scrape_news_met
-    # deals << self.scrape_meh
-    #Go to woot, find the product
-    # Extract the properties
-    #instantiate a deal
-  
-    #Go to meh
-    news
+  attr_accessor :category, :title, :description, :title_article, :description_article, :url, :details_title, :details_description
+
+  @title_article_ = []
+  @@urls = []
+
+  def self.today_news
+      # Scrape woot and meh and then return deals based on that data
+     self.scrape_news
   end
-  
-    def self.scrape_news_met
-      doc = Nokogiri::HTML(open("https://metropolehaiti.com/"))
-      
-      news_ = self.new
-      news_.title = doc.search("top-menu-3").text.strip
-      # deal.name = doc.search("h2.main-title").text.strip
-      # deal.price = doc.search("span.price").text.strip
-      # deal.url = doc.search("a.wantone").first.attr("href")
-      # deal.availability = true
-      news_
 
+def self.scrape_news
+  news = []
+  news << self.scrape_news_met
+  news
+end
+
+  def self.scrape_news_met
+    doc = Nokogiri::HTML(open("https://metropolehaiti.com/"))
+    news_type = self.new
+    news_type.title = doc.search("span").css(".top-menu-3").text.split(" | ")
+    news_type.title
+  end
+
+
+  def self.scrape_news_by_type(type)
+    suff = "metropole/liste_"+type[0..3].downcase+"_fr.php"
+    url = "https://metropolehaiti.com/" + suff
+    doc = Nokogiri::HTML(open(url))
+    link = ""
+    articles = {}
+    news_by_type = self.new
+    if doc.search("span").css(".article-titre").text.strip != ''
+    news_by_type.title_article = doc.search("span").css(".article-titre").text.strip
     end
+    news_by_type.description_article = doc.search("span").css(".article-text-2").text
 
-    # def self.scrape_meh
-    #   doc = Nokogiri::HTML(open("https://meh.com"))
-      
-    #   deal = self.new
-    #   deal.name = doc.search("section.features h2").text.strip
-    #   deal.price = doc.search("button.buy-button").text.gsub("Buy it","").strip
-    #   deal.url = "https://meh.com"
-    #   deal.availability = true
-    #   deal
-
-    # end
+    doc.css('table').collect do |x|
+        link = x.css('tr').css('td.news-link').css('a').attr('href')
+        if link != nil
+        @@urls << link.value
+        end
+    end
+    # puts "#{@@urls}"
+    news_by_type
   
   end
-  
+
+  def url
+    @@urls
+  end
+
+  def self.scrape_news_details(link)
+    doc = Nokogiri::HTML(open(link))
+    details = self.new
+    details.details_title = doc.search("span").css(".text-title").text.strip
+    details.details_description = doc.search("span").css(".article-text").text.strip
+    details
+  end
+
+end

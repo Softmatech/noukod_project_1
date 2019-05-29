@@ -28,27 +28,32 @@ def second_menu(type)
     @news_by_type_title = NoukodProject1::News.scrape_news_by_type(type).title_article
     @@title_array_url = NoukodProject1::News.scrape_news_by_type(type).url
     @title_array = @news_by_type_title.strip.split("\n")
-    puts "------ #{@title_array_url}"
+    # puts "------ #{@title_array_url}"
 
     @title_array.each.with_index(1) do |_title, i|
         @@title_array_2 << _title
     end
-
-    # puts "#{@title_array_2.size}"
     
-    for j in 0..@@title_array_2.size - 1
-        puts "#{j+1})#{@@title_array_2[j].strip}"
+    for j in 1..@@title_array_2.size - 1
+        if @@title_array_2[j].strip != ''
+        puts "#{j})#{@@title_array_2[j].strip}"
+        end
     end 
     puts "------------------------------------------------------------------------------------------------------------------"
     third_menu
 end
 
 def third_menu
-    puts "Choose a article number to display "
+    puts "Choose a article number to display or type r to return to the previous menu : "
     puts "\n"
     article_number = gets.strip
-    link = @@title_array_url[article_number.to_i - 1].strip
+    if article_number == "r"
+        list_news
+        main_menu
+    else
+    link = @@title_array_url[article_number.to_i].strip
     get_article_details(link)
+    end
 end
 
 def square_equal(text)
@@ -76,6 +81,16 @@ def get_article_details(link)
     square_equal(details.details_title)
     # puts "==============================================================================================================================="
     puts details.details_description
+    puts "\n"
+    puts "------------------------------------------------------------------------------------------------------------------"
+    puts "\n"
+    puts "Press r to return to the previous menu : "
+    key_ = gets.strip
+    if key_ == "r"
+        second_menu(@news.strip)
+    end
+    # list_news
+    # main_menu
 end
 
 def main_menu
@@ -84,10 +99,16 @@ def main_menu
     while input != "quit" 
     input = gets.strip.downcase
     if input.to_i > 0 && input.to_i <= @menu_array.size
-        news = @menu_array[input.to_i - 1]
-        puts "#{news} : "
+        @news = @menu_array[input.to_i - 1]
+        puts "#{@news} : "
         puts "------------------------------------------------------------------------------------------------------------------"
-        second_menu(news.strip)
+        second_menu(@news.strip)
+
+        puts "Press r to return to the previous menu : "
+    key_ = gets.strip
+    if key_ == "r"
+        list_news
+    end
         else
             puts "\n"
         puts "Error, Please choose a valid news type/category to display or type quit to exit : \n"
